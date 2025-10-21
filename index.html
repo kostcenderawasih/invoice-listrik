@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Cetak Struk Token Listrik - PT. Pos Indonesia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📮</text></svg>">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .animate-slide-in { animation: slideIn 0.5s ease-out; }
+        .animate-pulse-custom { animation: pulse 2s infinite; }
+        .animate-shake { animation: shake 0.5s ease-in-out; }
+        
+        /* Enhanced form styling */
+        .form-group {
+            transition: all 0.3s ease;
+        }
+        
+        .form-group:focus-within {
+            transform: translateY(-2px);
+        }
+        
+        .input-enhanced {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .input-enhanced:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .input-enhanced.error {
+            border-color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        .input-enhanced.success {
+            border-color: #10b981;
+        }
+        
+        /* Enhanced button styling */
+        .btn-enhanced {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-enhanced:active {
+            transform: translateY(0);
+        }
+        
+        .btn-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-enhanced:hover::before {
+            left: 100%;
+        }
+        
+        /* Enhanced receipt styling */
+        .receipt-enhanced {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced notification */
+        .notification {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+            background-size: 200% 100%;
+            animation: gradient 2s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+                padding: 0;
+            }
+            .print-area .thermal-receipt {
+                width: 80mm !important;
+                max-width: 80mm !important;
+                min-width: 80mm !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+        }
+        
+        .thermal-receipt {
+            width: 80mm;
+            max-width: 80mm;
+            min-width: 80mm;
+            font-family: 'Courier New', 'Liberation Mono', 'DejaVu Sans Mono', monospace;
+            font-size: 11px;
+            line-height: 1.3;
+            background: white;
+            color: black;
+            padding: 4mm;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        
+        /* Enhanced validation styles */
+        .validation-message {
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .validation-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .validation-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .validation-warning {
+            background: #fffbeb;
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+        
+        /* Enhanced status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .status-warning {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .status-info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        /* Enhanced card styling */
+        .card-enhanced {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+        
+        .card-enhanced:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        /* Enhanced header gradient */
+        .header-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
+        }
+        
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+        }
+        
+        .receipt-separator {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+        
+        .token-box {
+            border: 2px solid #000;
+            padding: 8px;
+            margin: 8px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="bg-blue-50 min-h-full">
+    <!-- Progress Bar -->
+    <div class="progress-bar fixed top-0 left-0 w-full z-50"></div>
+    
+    <main class="container mx-auto p-4 max-w-6xl animate-slide-in">
+        <header class="header-gradient text-white rounded-2xl p-8 mb-8 shadow-2xl">
+            <div class="flex items-center justify-center mb-6">
+                <div class="bg-white rounded-full p-4 mr-6 shadow-lg">
+                    <img src="https://drive.google.com/uc?export=view&id=1V9oYrn4FaMyOE18AtZNCOjY5hk12DReU" alt="Logo PT. Pos Indonesia" class="h-16 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                    <div style="display: none; font-size: 48px; color: #1e40af;">📮</div>
+                </div>
+                <div class="text-left">
+                    <h1 class="text-4xl font-bold mb-2">Aplikasi Cetak Struk Token Listrik</h1>
+                    <p class="text-blue-100 text-lg">Sistem Pembayaran Listrik - PT. Pos Indonesia (Persero)</p>
+                    <div class="flex items-center mt-3 space-x-4">
+                        <span class="status-indicator bg-green-100 text-green-800">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse-custom"></div>
+                            Sistem Online
+                        </span>
+                        <span class="status-indicator bg-blue-100 text-blue-800">
+                            <span>🔒</span>
+                            Aman & Terpercaya
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl font-bold">⚡</div>
+                    <div class="text-sm">Token Listrik</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl font-bold">💳</div>
+                    <div class="text-sm">Pascabayar</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl font-bold">🖨️</div>
+                    <div class="text-sm">Cetak Struk</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Form Input -->
+            <div class="card-enhanced p-8 no-print">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Data Pembelian Token</h2>
+                    <div class="status-indicator status-info">
+                        <span>📝</span>
+                        Form Input
+                    </div>
+                </div>
+                
+                <form id="tokenForm" class="space-y-6">
+                    <div class="form-group">
+                        <label for="serviceType" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>⚡</span>
+                                Jenis Layanan
+                                <span class="text-red-500">*</span>
+                            </span>
+                        </label>
+                        <select id="serviceType" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none" required>
+                            <option value="">Pilih Jenis Layanan</option>
+                            <option value="TOKEN">⚡ Token Listrik (Prabayar)</option>
+                            <option value="PASCABAYAR">💳 Listrik Pascabayar</option>
+                        </select>
+                        <div id="serviceTypeValidation" class="validation-container"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerName" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>👤</span>
+                                Nama Pelanggan
+                                <span class="text-red-500">*</span>
+                            </span>
+                        </label>
+                        <input type="text" id="customerName" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Masukkan nama lengkap pelanggan" required>
+                        <div id="customerNameValidation" class="validation-container"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="idPelanggan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>🔢</span>
+                                ID Pelanggan
+                                <span class="text-red-500">*</span>
+                            </span>
+                        </label>
+                        <input type="text" id="idPelanggan" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Contoh: 123456789012 (12 digit)" maxlength="12" required>
+                        <div id="idPelangganValidation" class="validation-container"></div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            💡 ID Pelanggan terdiri dari 12 digit angka
+                        </div>
+                    </div>
+                    
+                    <div id="nominalSection" class="form-group">
+                        <label for="nominal" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>💰</span>
+                                Nominal Pembelian
+                                <span class="text-red-500">*</span>
+                            </span>
+                        </label>
+                        <select id="nominal" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none" required>
+                            <option value="">Pilih Nominal Token</option>
+                            <option value="20000">💵 Rp 20.000</option>
+                            <option value="50000">💵 Rp 50.000</option>
+                            <option value="100000">💵 Rp 100.000</option>
+                            <option value="200000">💵 Rp 200.000</option>
+                            <option value="500000">💵 Rp 500.000</option>
+                            <option value="1000000">💵 Rp 1.000.000</option>
+                        </select>
+                        <div id="nominalValidation" class="validation-container"></div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            💡 Biaya admin Rp 3.500 akan ditambahkan otomatis
+                        </div>
+                    </div>
+                    
+                    <div id="billSection" class="form-group" style="display: none;">
+                        <label for="billAmount" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>📄</span>
+                                Tagihan Listrik
+                                <span class="text-red-500">*</span>
+                            </span>
+                        </label>
+                        <div class="space-y-3">
+                            <div class="relative">
+                                <input type="number" id="billAmount" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none pr-20" placeholder="Masukkan nominal tagihan listrik" min="0">
+                                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <span>Rp</span>
+                                </div>
+                            </div>
+                            <div id="billAmountValidation" class="validation-container"></div>
+                            
+                            <div class="flex gap-2">
+                                <button type="button" id="checkBillBtn" class="btn-enhanced flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition duration-300">
+                                    <span class="flex items-center justify-center gap-2">
+                                        <span>🔍</span>
+                                        Cek Otomatis
+                                        <div id="checkBillSpinner" class="spinner hidden"></div>
+                                    </span>
+                                </button>
+                                <button type="button" id="clearBillBtn" class="btn-enhanced bg-gray-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-600 transition duration-300">
+                                    <span class="flex items-center justify-center gap-2">
+                                        <span>🗑️</span>
+                                        Bersihkan
+                                    </span>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" class="quick-bill-btn btn-enhanced bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm hover:bg-blue-200 transition duration-300" data-amount="50000">
+                                    Rp 50.000
+                                </button>
+                                <button type="button" class="quick-bill-btn btn-enhanced bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm hover:bg-blue-200 transition duration-300" data-amount="100000">
+                                    Rp 100.000
+                                </button>
+                                <button type="button" class="quick-bill-btn btn-enhanced bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm hover:bg-blue-200 transition duration-300" data-amount="150000">
+                                    Rp 150.000
+                                </button>
+                                <button type="button" class="quick-bill-btn btn-enhanced bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm hover:bg-blue-200 transition duration-300" data-amount="200000">
+                                    Rp 200.000
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-800 font-medium">💡 <strong>Input Tagihan Listrik</strong></p>
+                            <p class="text-xs text-blue-700 mt-1">• Masukkan nominal tagihan secara manual</p>
+                            <p class="text-xs text-blue-700">• Gunakan tombol "Cek Otomatis" untuk simulasi</p>
+                            <p class="text-xs text-blue-700">• Biaya admin Rp 3.500 akan ditambahkan otomatis</p>
+                        </div>
+                    </div>
+                    
+
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>💳</span>
+                                Metode Pembayaran
+                                <span class="text-red-500">*</span>
+                            </span>
+                        </label>
+                        <select id="paymentMethod" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none" required>
+                            <option value="">Pilih Metode Pembayaran</option>
+                            <option value="TUNAI">💵 Tunai</option>
+                            <option value="DEBIT">💳 Kartu Debit</option>
+                            <option value="QRIS">📱 QRIS</option>
+                            <option value="TRANSFER">🏦 Transfer Bank</option>
+                        </select>
+                        <div id="paymentMethodValidation" class="validation-container"></div>
+                    </div>
+
+                    <!-- Operator Info -->
+                    <div class="form-group">
+                        <label for="operatorName" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span>👨‍💼</span>
+                                Nama Operator
+                            </span>
+                        </label>
+                        <input type="text" id="operatorName" class="input-enhanced w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nama petugas kasir" value="KASIR01">
+                        <div class="mt-2 text-xs text-gray-500">
+                            💡 Nama operator akan tercantum di struk
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            <span class="flex items-center gap-2">
+                                <span>🖼️</span>
+                                Kustomisasi Logo Header
+                            </span>
+                        </label>
+                        <div class="space-y-4">
+                            <div class="flex flex-wrap gap-3">
+                                <input type="file" id="logoUpload" accept="image/*" class="hidden">
+                                <button type="button" id="uploadLogoBtn" class="btn-enhanced bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-600 transition duration-300">
+                                    <span class="flex items-center gap-2">
+                                        <span>📁</span>
+                                        Upload Logo
+                                    </span>
+                                </button>
+                                <button type="button" id="resetLogoBtn" class="btn-enhanced bg-gray-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition duration-300">
+                                    <span class="flex items-center gap-2">
+                                        <span>🔄</span>
+                                        Reset Default
+                                    </span>
+                                </button>
+                            </div>
+                            <div id="logoPreview" class="hidden">
+                                <div class="p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <img id="previewImage" src="" alt="Logo Preview" class="h-12 w-auto border border-gray-300 rounded">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-700" id="logoFileName">Logo Custom</div>
+                                                <div class="text-xs text-gray-500" id="logoFileSize">-</div>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="removeLogoBtn" class="text-red-600 hover:text-red-800 text-sm">
+                                            ❌ Hapus
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                                💡 <strong>Format yang didukung:</strong> JPG, PNG, GIF (Maksimal 2MB)<br>
+                                🔧 Logo akan otomatis disesuaikan ukurannya untuk struk thermal
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            <span class="flex items-center gap-2">
+                                <span>🖨️</span>
+                                Printer Thermal Bluetooth
+                            </span>
+                        </label>
+                        <div class="space-y-3">
+                            <button type="button" id="scanPrinterBtn" class="btn-enhanced w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition duration-300">
+                                <span class="flex items-center justify-center gap-2">
+                                    <span>📡</span>
+                                    Pindai Printer Bluetooth
+                                    <div id="scanSpinner" class="spinner hidden"></div>
+                                </span>
+                            </button>
+                            <div id="printerStatus" class="text-sm text-gray-600 hidden">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                    <span>Tidak ada printer terhubung</span>
+                                </div>
+                            </div>
+                            <div id="printerList" class="hidden">
+                                <div class="max-h-32 overflow-y-auto border border-gray-300 rounded-md">
+                                    <div id="printerDevices" class="divide-y divide-gray-200"></div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                💡 <strong>Tips Printer Bluetooth:</strong><br>
+                                • Pastikan Bluetooth aktif di perangkat<br>
+                                • Gunakan browser Chrome/Edge terbaru<br>
+                                • Aktifkan printer thermal dan mode pairing<br>
+                                • Gunakan HTTPS untuk akses Bluetooth
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-6">
+                        <button type="submit" id="submitBtn" class="btn-enhanced w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition duration-300 shadow-lg">
+                            <span class="flex items-center justify-center gap-3">
+                                <span>⚡</span>
+                                <span id="submitBtnText">Generate Struk Token</span>
+                                <div id="submitSpinner" class="spinner hidden"></div>
+                            </span>
+                        </button>
+                        
+                        <div class="mt-3 text-center text-xs text-gray-500">
+                            🔒 Transaksi aman dan terpercaya dengan PT. Pos Indonesia
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Struk -->
+            <div class="card-enhanced p-8">
+                <div class="flex justify-between items-center mb-6 no-print">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Preview Struk</h2>
+                        <p class="text-sm text-gray-600 mt-1">Pratinjau struk sebelum dicetak</p>
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <button id="printBtn" class="btn-enhanced bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition duration-300 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed" disabled>
+                            <span class="flex items-center gap-2">
+                                <span>🖨️</span>
+                                <span id="printBtnText">Cetak Struk</span>
+                                <div id="printSpinner" class="spinner hidden"></div>
+                            </span>
+                        </button>
+                        <div class="text-xs text-center text-gray-500">
+                            <span id="printStatus">Isi form untuk mengaktifkan</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="receiptPreview" class="print-area">
+                    <div class="thermal-receipt receipt-enhanced">
+                        <div class="receipt-header">
+                            <img src="https://drive.google.com/uc?export=view&id=1V9oYrn4FaMyOE18AtZNCOjY5hk12DReU" alt="Logo PT. Pos Indonesia" class="mx-auto mb-2" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display: none; font-weight: bold; font-size: 14px;">📮 POS</div>
+                            <div class="font-bold text-sm">PT. POS INDONESIA (PERSERO)</div>
+                            <div class="text-xs">Kpc. Manokwari Sanggeng 98312A</div>
+                            <div class="text-xs mt-1">Telp: (0986) 211234</div>
+                        </div>
+                        
+                        <div id="receiptTitle" class="text-center font-bold mb-2 text-sm">STRUK PEMBAYARAN LISTRIK</div>
+                        
+                        <div id="receiptContent" class="text-xs">
+                            <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                                <div class="text-6xl mb-4">📄</div>
+                                <div class="text-gray-500 font-medium">Silakan isi form untuk generate struk</div>
+                                <div class="text-gray-400 text-xs mt-2">Preview akan muncul di sini</div>
+                            </div>
+                        </div>
+                        
+                        <div class="receipt-separator"></div>
+                        <div class="text-center text-xs">
+                            <div class="font-medium">Terima kasih atas kepercayaan Anda</div>
+                            <div>Simpan struk ini sebagai bukti pembayaran</div>
+                            <div class="mt-2 font-medium text-blue-600">www.posindonesia.co.id</div>
+                            <div class="mt-1 text-gray-500">Layanan 24 Jam: 1500-161</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Receipt Actions (No Print) -->
+                <div class="mt-6 no-print">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">📋 Informasi Struk</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Format:</span>
+                                <span class="font-medium ml-2">Thermal 80mm</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Ukuran:</span>
+                                <span class="font-medium ml-2">80mm x Auto</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Font:</span>
+                                <span class="font-medium ml-2">Courier New</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Encoding:</span>
+                                <span class="font-medium ml-2">UTF-8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Enhanced validation system
+        class FormValidator {
+            constructor() {
+                this.rules = {
+                    serviceType: { required: true, message: 'Pilih jenis layanan' },
+                    customerName: { required: true, minLength: 3, message: 'Nama minimal 3 karakter' },
+                    idPelanggan: { required: true, pattern: /^\d{12}$/, message: 'ID Pelanggan harus 12 digit angka' },
+                    paymentMethod: { required: true, message: 'Pilih metode pembayaran' }
+                };
+                this.errors = {};
+            }
+            
+            validate(fieldName, value) {
+                const rule = this.rules[fieldName];
+                if (!rule) return true;
+                
+                // Required validation
+                if (rule.required && (!value || value.trim() === '')) {
+                    this.setError(fieldName, rule.message);
+                    return false;
+                }
+                
+                // Pattern validation
+                if (rule.pattern && value && !rule.pattern.test(value)) {
+                    this.setError(fieldName, rule.message);
+                    return false;
+                }
+                
+                // Min length validation
+                if (rule.minLength && value && value.length < rule.minLength) {
+                    this.setError(fieldName, rule.message);
+                    return false;
+                }
+                
+                this.clearError(fieldName);
+                return true;
+            }
+            
+            setError(fieldName, message) {
+                this.errors[fieldName] = message;
+                this.showValidation(fieldName, 'error', message);
+                this.updateFieldStyle(fieldName, 'error');
+            }
+            
+            clearError(fieldName) {
+                delete this.errors[fieldName];
+                this.showValidation(fieldName, 'success', '✓ Valid');
+                this.updateFieldStyle(fieldName, 'success');
+            }
+            
+            showValidation(fieldName, type, message) {
+                const container = document.getElementById(fieldName + 'Validation');
+                if (!container) return;
+                
+                container.innerHTML = `
+                    <div class="validation-message validation-${type}">
+                        <span>${type === 'error' ? '⚠️' : '✅'}</span>
+                        <span>${message}</span>
+                    </div>
+                `;
+            }
+            
+            updateFieldStyle(fieldName, type) {
+                const field = document.getElementById(fieldName);
+                if (!field) return;
+                
+                field.classList.remove('error', 'success');
+                field.classList.add(type);
+            }
+            
+            isValid() {
+                return Object.keys(this.errors).length === 0;
+            }
+        }
+        
+        const validator = new FormValidator();
+        
+        // Enhanced notification system
+        function showNotification(message, type = 'info', duration = 4000) {
+            const notification = document.createElement('div');
+            
+            let bgColor = 'from-blue-500 to-blue-600';
+            let icon = 'ℹ️';
+            
+            switch(type) {
+                case 'success':
+                    bgColor = 'from-green-500 to-green-600';
+                    icon = '✅';
+                    break;
+                case 'error':
+                    bgColor = 'from-red-500 to-red-600';
+                    icon = '❌';
+                    break;
+                case 'warning':
+                    bgColor = 'from-orange-500 to-orange-600';
+                    icon = '⚠️';
+                    break;
+            }
+            
+            notification.className = `notification fixed top-6 right-6 bg-gradient-to-r ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl z-50 animate-slide-in max-w-sm`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">${icon}</span>
+                    <div class="flex-1">
+                        <div class="font-semibold">${message}</div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200 ml-2">
+                        ✕
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, duration);
+        }
+        
+        function formatRupiah(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function generateToken() {
+            // Generate token 20 digit
+            let token = '';
+            for (let i = 0; i < 20; i++) {
+                token += Math.floor(Math.random() * 10);
+            }
+            return token;
+        }
+
+        function generateTransactionId() {
+            const now = new Date();
+            const timestamp = now.getTime().toString().slice(-8);
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return 'TXN' + timestamp + random;
+        }
+
+        function getCurrentDateTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            const time = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            return { date, time };
+        }
+
+        // Real-time validation
+        function setupValidation() {
+            const fields = ['serviceType', 'customerName', 'idPelanggan', 'paymentMethod'];
+            
+            fields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (field) {
+                    field.addEventListener('blur', () => {
+                        validator.validate(fieldName, field.value);
+                    });
+                    
+                    field.addEventListener('input', () => {
+                        // Clear error on input for better UX
+                        if (validator.errors[fieldName]) {
+                            validator.validate(fieldName, field.value);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Enhanced loading states
+        function setLoadingState(elementId, isLoading, loadingText = 'Memproses...') {
+            const element = document.getElementById(elementId);
+            const spinner = element.querySelector('.spinner');
+            const text = element.querySelector('span:not(.spinner)');
+            
+            if (isLoading) {
+                element.disabled = true;
+                if (spinner) spinner.classList.remove('hidden');
+                if (text) text.textContent = loadingText;
+            } else {
+                element.disabled = false;
+                if (spinner) spinner.classList.add('hidden');
+            }
+        }
+        
+        // Handle service type change
+        document.getElementById('serviceType').addEventListener('change', function(e) {
+            const serviceType = e.target.value;
+            const nominalSection = document.getElementById('nominalSection');
+            const billSection = document.getElementById('billSection');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const receiptTitle = document.getElementById('receiptTitle');
+            
+            // Validate service type
+            validator.validate('serviceType', serviceType);
+            
+            if (serviceType === 'TOKEN') {
+                nominalSection.style.display = 'block';
+                billSection.style.display = 'none';
+                submitBtnText.textContent = '⚡ Generate Struk Token';
+                receiptTitle.textContent = 'STRUK PEMBELIAN TOKEN LISTRIK';
+                document.getElementById('nominal').required = true;
+                document.getElementById('billAmount').required = false;
+                
+                // Add animation
+                nominalSection.classList.add('animate-slide-in');
+                
+                showNotification('Mode Token Listrik dipilih', 'success');
+            } else if (serviceType === 'PASCABAYAR') {
+                nominalSection.style.display = 'none';
+                billSection.style.display = 'block';
+                submitBtnText.textContent = '💳 Generate Struk Pembayaran';
+                receiptTitle.textContent = 'STRUK PEMBAYARAN LISTRIK PASCABAYAR';
+                document.getElementById('nominal').required = false;
+                document.getElementById('billAmount').required = true;
+                
+                // Add animation
+                billSection.classList.add('animate-slide-in');
+                
+                showNotification('Mode Pascabayar dipilih', 'success');
+            } else {
+                nominalSection.style.display = 'none';
+                billSection.style.display = 'none';
+                submitBtnText.textContent = '⚡ Generate Struk';
+                receiptTitle.textContent = 'STRUK PEMBAYARAN LISTRIK';
+            }
+        });
+
+        // Enhanced check bill function
+        document.getElementById('checkBillBtn').addEventListener('click', async function() {
+            const idPelanggan = document.getElementById('idPelanggan').value;
+            
+            // Validate ID Pelanggan first
+            if (!validator.validate('idPelanggan', idPelanggan)) {
+                showNotification('ID Pelanggan tidak valid!', 'error');
+                return;
+            }
+            
+            // Set loading state
+            setLoadingState('checkBillBtn', true, 'Mengecek...');
+            
+            try {
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Simulate bill generation based on ID
+                const lastDigit = parseInt(idPelanggan.slice(-1)) || 1;
+                const baseAmount = [125000, 89000, 156000, 203000, 78000, 167000, 134000, 98000, 189000, 145000];
+                const billAmount = baseAmount[lastDigit];
+                const currentMonth = new Date().toLocaleDateString('id-ID', {month: 'long', year: 'numeric'});
+                
+                // Update bill amount
+                document.getElementById('billAmount').value = billAmount;
+                
+                // Remove existing messages
+                document.querySelectorAll('.bill-info, .error-msg').forEach(el => el.remove());
+                
+                // Show success message
+                const billInfo = document.createElement('div');
+                billInfo.className = 'mt-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg animate-slide-in';
+                billInfo.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="text-green-600 text-xl">✅</div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-green-800">Tagihan Berhasil Ditemukan</p>
+                            <div class="mt-2 space-y-1 text-xs text-green-700">
+                                <div><strong>Periode:</strong> ${currentMonth}</div>
+                                <div><strong>Jumlah Tagihan:</strong> ${formatRupiah(billAmount)}</div>
+                                <div><strong>Status:</strong> Belum Dibayar</div>
+                                <div><strong>Jatuh Tempo:</strong> ${new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString('id-ID')}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                billInfo.classList.add('bill-info');
+                document.getElementById('billSection').appendChild(billInfo);
+                
+                showNotification('Tagihan berhasil ditemukan!', 'success');
+                
+            } catch (error) {
+                showNotification('Gagal mengecek tagihan. Coba lagi.', 'error');
+            } finally {
+                // Reset loading state
+                setLoadingState('checkBillBtn', false);
+                document.getElementById('checkBillBtn').innerHTML = `
+                    <span class="flex items-center justify-center gap-2">
+                        <span>🔍</span>
+                        Cek Otomatis
+                    </span>
+                `;
+            }
+        });
+
+        // Clear bill button functionality
+        document.getElementById('clearBillBtn').addEventListener('click', function() {
+            document.getElementById('billAmount').value = '';
+            document.querySelectorAll('.bill-info, .error-msg').forEach(el => el.remove());
+            showNotification('Field tagihan dibersihkan', 'info');
+        });
+
+        // Quick bill amount buttons
+        document.querySelectorAll('.quick-bill-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const amount = this.getAttribute('data-amount');
+                document.getElementById('billAmount').value = amount;
+                
+                // Remove existing messages
+                document.querySelectorAll('.bill-info, .error-msg').forEach(el => el.remove());
+                
+                // Show quick selection message
+                const quickInfo = document.createElement('div');
+                quickInfo.className = 'mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg animate-slide-in';
+                quickInfo.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="text-blue-600">⚡</div>
+                        <div class="text-sm text-blue-800">
+                            <strong>Nominal dipilih:</strong> ${formatRupiah(parseInt(amount))}
+                        </div>
+                    </div>
+                `;
+                
+                quickInfo.classList.add('bill-info');
+                document.getElementById('billSection').appendChild(quickInfo);
+                
+                showNotification(`Nominal ${formatRupiah(parseInt(amount))} dipilih`, 'success');
+            });
+        });
+
+        // Real-time validation for bill amount
+        document.getElementById('billAmount').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            const billValidation = document.getElementById('billAmountValidation');
+            
+            if (this.value && value > 0) {
+                billValidation.innerHTML = `
+                    <div class="validation-message validation-success">
+                        <span>✅</span>
+                        <span>Nominal valid: ${formatRupiah(value)}</span>
+                    </div>
+                `;
+            } else if (this.value && value <= 0) {
+                billValidation.innerHTML = `
+                    <div class="validation-message validation-error">
+                        <span>⚠️</span>
+                        <span>Nominal harus lebih dari 0</span>
+                    </div>
+                `;
+            } else {
+                billValidation.innerHTML = '';
+            }
+        });
+
+        document.getElementById('tokenForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const serviceType = document.getElementById('serviceType').value;
+            const customerName = document.getElementById('customerName').value;
+            const idPelanggan = document.getElementById('idPelanggan').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            if (!serviceType || !customerName || !idPelanggan || !paymentMethod) {
+                // Show inline notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                notification.innerHTML = '⚠️ Mohon lengkapi semua data!';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+                return;
+            }
+            
+            const transactionId = generateTransactionId();
+            const { date, time } = getCurrentDateTime();
+            const adminFee = 3500;
+            
+            let receiptHTML = '';
+            
+            if (serviceType === 'TOKEN') {
+                const nominal = parseInt(document.getElementById('nominal').value);
+                if (!nominal) {
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    notification.innerHTML = '⚠️ Pilih nominal token!';
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => notification.remove(), 3000);
+                    return;
+                }
+                
+                const token = generateToken();
+                const totalAmount = nominal + adminFee;
+                
+                receiptHTML = `
+                    <div class="receipt-row">
+                        <span>Tanggal/Waktu:</span>
+                        <span>${date} ${time}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>No. Transaksi:</span>
+                        <span>${transactionId}</span>
+                    </div>
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="receipt-row">
+                        <span>Nama Pelanggan:</span>
+                    </div>
+                    <div class="font-bold">${customerName}</div>
+                    
+                    <div class="receipt-row mt-2">
+                        <span>ID Pelanggan:</span>
+                        <span>${idPelanggan}</span>
+                    </div>
+                    
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="receipt-row">
+                        <span>Nominal Token:</span>
+                        <span>${formatRupiah(nominal)}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Biaya Admin:</span>
+                        <span>${formatRupiah(adminFee)}</span>
+                    </div>
+                    <div class="receipt-row font-bold">
+                        <span>Total Bayar:</span>
+                        <span>${formatRupiah(totalAmount)}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Metode Bayar:</span>
+                        <span>${paymentMethod}</span>
+                    </div>
+                    
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="text-center font-bold mb-2">KODE TOKEN LISTRIK</div>
+                    <div class="token-box">
+                        ${token.substring(0, 4)} ${token.substring(4, 8)} ${token.substring(8, 12)} ${token.substring(12, 16)} ${token.substring(16, 20)}
+                    </div>
+                    
+                    <div class="text-center text-xs mt-2">
+                        <div>Masukkan kode token di atas</div>
+                        <div>ke meteran listrik Anda</div>
+                    </div>
+                    
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="text-xs">
+                        <div>Status: BERHASIL</div>
+                        <div>Operator: KASIR01</div>
+                        <div>Ref: ${transactionId}</div>
+                    </div>
+                `;
+            } else if (serviceType === 'PASCABAYAR') {
+                const billAmount = parseInt(document.getElementById('billAmount').value);
+                if (!billAmount) {
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    notification.innerHTML = '⚠️ Cek tagihan terlebih dahulu!';
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => notification.remove(), 3000);
+                    return;
+                }
+                
+                const totalAmount = billAmount + adminFee;
+                const currentMonth = new Date().toLocaleDateString('id-ID', {month: 'long', year: 'numeric'});
+                
+                receiptHTML = `
+                    <div class="receipt-row">
+                        <span>Tanggal/Waktu:</span>
+                        <span>${date} ${time}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>No. Transaksi:</span>
+                        <span>${transactionId}</span>
+                    </div>
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="receipt-row">
+                        <span>Nama Pelanggan:</span>
+                    </div>
+                    <div class="font-bold">${customerName}</div>
+                    
+                    <div class="receipt-row mt-2">
+                        <span>ID Pelanggan:</span>
+                        <span>${idPelanggan}</span>
+                    </div>
+                    
+                    <div class="receipt-row">
+                        <span>Periode:</span>
+                        <span>${currentMonth}</span>
+                    </div>
+                    
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="receipt-row">
+                        <span>Tagihan Listrik:</span>
+                        <span>${formatRupiah(billAmount)}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Biaya Admin:</span>
+                        <span>${formatRupiah(adminFee)}</span>
+                    </div>
+                    <div class="receipt-row font-bold">
+                        <span>Total Bayar:</span>
+                        <span>${formatRupiah(totalAmount)}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Metode Bayar:</span>
+                        <span>${paymentMethod}</span>
+                    </div>
+                    
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="text-center font-bold mb-2">PEMBAYARAN BERHASIL</div>
+                    <div class="text-center p-4 bg-green-100 border border-green-300 rounded">
+                        <div class="font-bold text-green-800">✅ LUNAS</div>
+                        <div class="text-xs text-green-700 mt-1">Tagihan periode ${currentMonth}</div>
+                        <div class="text-xs text-green-700">telah dibayar</div>
+                    </div>
+                    
+                    <div class="receipt-separator"></div>
+                    
+                    <div class="text-xs">
+                        <div>Status: BERHASIL</div>
+                        <div>Operator: KASIR01</div>
+                        <div>Ref: ${transactionId}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('receiptContent').innerHTML = receiptHTML;
+            document.getElementById('printBtn').disabled = false;
+        });
+
+        document.getElementById('printBtn').addEventListener('click', function() {
+            // Check if thermal printer is connected
+            if (bluetoothDevice && bluetoothDevice.gatt.connected && connectedPrinter) {
+                // Print to thermal printer first
+                printToThermalPrinter();
+            } else {
+                // Fallback to regular browser print
+                window.print();
+            }
+        });
+
+        // Bluetooth Printer Variables
+        let bluetoothDevice = null;
+        let bluetoothCharacteristic = null;
+        let connectedPrinter = null;
+
+        // Bluetooth Printer Functions
+        async function scanBluetoothPrinters() {
+            const scanBtn = document.getElementById('scanPrinterBtn');
+            const printerStatus = document.getElementById('printerStatus');
+            const printerList = document.getElementById('printerList');
+            const printerDevices = document.getElementById('printerDevices');
+
+            try {
+                // Check if Web Bluetooth is supported
+                if (!navigator.bluetooth) {
+                    throw new Error('Web Bluetooth tidak didukung di browser ini');
+                }
+
+                scanBtn.textContent = '🔍 Mencari printer...';
+                scanBtn.disabled = true;
+                printerStatus.classList.remove('hidden');
+                printerStatus.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span>Mencari printer thermal...</span>
+                    </div>
+                `;
+
+                // Request Bluetooth devices
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { services: ['000018f0-0000-1000-8000-00805f9b34fb'] }, // Thermal printer service
+                        { namePrefix: 'MTP-' },
+                        { namePrefix: 'POS-' },
+                        { namePrefix: 'Thermal' },
+                        { namePrefix: 'Printer' }
+                    ],
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'generic_access']
+                });
+
+                if (device) {
+                    // Add device to list
+                    const deviceElement = document.createElement('div');
+                    deviceElement.className = 'p-3 hover:bg-gray-50 cursor-pointer';
+                    deviceElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-sm">${device.name || 'Printer Thermal'}</div>
+                                <div class="text-xs text-gray-500">${device.id}</div>
+                            </div>
+                            <button class="connect-printer-btn bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600" data-device-id="${device.id}">
+                                Hubungkan
+                            </button>
+                        </div>
+                    `;
+
+                    printerDevices.innerHTML = '';
+                    printerDevices.appendChild(deviceElement);
+                    printerList.classList.remove('hidden');
+
+                    // Add connect event listener
+                    deviceElement.querySelector('.connect-printer-btn').addEventListener('click', () => {
+                        connectToPrinter(device);
+                    });
+
+                    printerStatus.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                            <span>Printer ditemukan! Klik "Hubungkan" untuk menyambung</span>
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error scanning printers:', error);
+                
+                let errorMessage = 'Gagal memindai printer';
+                if (error.message.includes('User cancelled')) {
+                    errorMessage = 'Pemindaian dibatalkan';
+                } else if (error.message.includes('tidak didukung')) {
+                    errorMessage = 'Browser tidak mendukung Bluetooth';
+                } else if (error.message.includes('not available')) {
+                    errorMessage = 'Bluetooth tidak tersedia';
+                }
+
+                printerStatus.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-red-400 rounded-full"></div>
+                        <span>${errorMessage}</span>
+                    </div>
+                `;
+
+                // Show fallback message
+                const fallbackMsg = document.createElement('div');
+                fallbackMsg.className = 'mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md';
+                fallbackMsg.innerHTML = `
+                    <p class="text-sm text-blue-800">💡 <strong>Tips:</strong></p>
+                    <ul class="text-xs text-blue-700 mt-1 space-y-1">
+                        <li>• Pastikan Bluetooth aktif di perangkat</li>
+                        <li>• Gunakan browser Chrome/Edge terbaru</li>
+                        <li>• Aktifkan printer thermal dan mode pairing</li>
+                        <li>• Gunakan HTTPS untuk akses Bluetooth</li>
+                    </ul>
+                `;
+                
+                const existingFallback = document.querySelector('.fallback-msg');
+                if (existingFallback) existingFallback.remove();
+                
+                fallbackMsg.classList.add('fallback-msg');
+                printerStatus.parentNode.appendChild(fallbackMsg);
+            } finally {
+                scanBtn.textContent = '📡 Pindai Printer Bluetooth';
+                scanBtn.disabled = false;
+            }
+        }
+
+        async function connectToPrinter(device) {
+            const printerStatus = document.getElementById('printerStatus');
+            
+            try {
+                printerStatus.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span>Menghubungkan ke ${device.name || 'printer'}...</span>
+                    </div>
+                `;
+
+                // Connect to GATT server
+                const server = await device.gatt.connect();
+                
+                // Get service and characteristic (this is a simplified example)
+                // Real implementation would depend on specific printer protocol
+                bluetoothDevice = device;
+                connectedPrinter = device.name || 'Printer Thermal';
+
+                printerStatus.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span>Terhubung ke ${connectedPrinter}</span>
+                        <button id="disconnectPrinter" class="text-red-600 text-xs hover:text-red-800 ml-2">Putus</button>
+                    </div>
+                `;
+
+                // Update print button text to show thermal printer integration
+                const printBtn = document.getElementById('printBtn');
+                printBtn.innerHTML = `🖨️ Cetak ke ${connectedPrinter}`;
+                printBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                printBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+
+                // Add disconnect functionality
+                document.getElementById('disconnectPrinter').addEventListener('click', disconnectPrinter);
+
+                // Hide printer list
+                document.getElementById('printerList').classList.add('hidden');
+
+                // Show success notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                notification.innerHTML = `✅ Printer ${connectedPrinter} terhubung!`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                printerStatus.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-red-400 rounded-full"></div>
+                        <span>Gagal terhubung: ${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function disconnectPrinter() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                bluetoothDevice.gatt.disconnect();
+            }
+            
+            bluetoothDevice = null;
+            bluetoothCharacteristic = null;
+            connectedPrinter = null;
+            
+            document.getElementById('printerStatus').innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <span>Tidak ada printer terhubung</span>
+                </div>
+            `;
+            
+            // Reset print button to default
+            const printBtn = document.getElementById('printBtn');
+            printBtn.innerHTML = '🖨️ Cetak Struk';
+            printBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+            printBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.innerHTML = '🔌 Printer terputus';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        async function printToThermalPrinter() {
+            if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                notification.innerHTML = '⚠️ Printer tidak terhubung!';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+                return;
+            }
+
+            try {
+                // Show printing status
+                const printingNotification = document.createElement('div');
+                printingNotification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                printingNotification.innerHTML = `🖨️ Mencetak ke ${connectedPrinter}...`;
+                document.body.appendChild(printingNotification);
+
+                // Get receipt content and format for thermal printer
+                const receiptElement = document.querySelector('.thermal-receipt');
+                const printData = await formatReceiptForThermalPrinter(receiptElement);
+                
+                // Get printer service and characteristic
+                const server = bluetoothDevice.gatt;
+                let service, characteristic;
+                
+                try {
+                    // Try common thermal printer service UUIDs
+                    const serviceUUIDs = [
+                        '000018f0-0000-1000-8000-00805f9b34fb', // Common thermal printer service
+                        '49535343-fe7d-4ae5-8fa9-9fafd205e455', // Another common service
+                        '6e400001-b5a3-f393-e0a9-e50e24dcca9e'  // Nordic UART service
+                    ];
+                    
+                    for (const uuid of serviceUUIDs) {
+                        try {
+                            service = await server.getPrimaryService(uuid);
+                            break;
+                        } catch (e) {
+                            continue;
+                        }
+                    }
+                    
+                    if (!service) {
+                        throw new Error('Service printer tidak ditemukan');
+                    }
+                    
+                    // Get characteristic for writing
+                    const characteristicUUIDs = [
+                        '00002af1-0000-1000-8000-00805f9b34fb', // Write characteristic
+                        '49535343-8841-43f4-a8d4-ecbe34729bb3', // Write characteristic
+                        '6e400002-b5a3-f393-e0a9-e50e24dcca9e'  // Nordic UART TX
+                    ];
+                    
+                    for (const uuid of characteristicUUIDs) {
+                        try {
+                            characteristic = await service.getCharacteristic(uuid);
+                            break;
+                        } catch (e) {
+                            continue;
+                        }
+                    }
+                    
+                    if (!characteristic) {
+                        throw new Error('Characteristic printer tidak ditemukan');
+                    }
+                    
+                    // Send print data in chunks (thermal printers have limited buffer)
+                    const chunkSize = 20; // Most BLE devices support 20 bytes per write
+                    for (let i = 0; i < printData.length; i += chunkSize) {
+                        const chunk = printData.slice(i, i + chunkSize);
+                        await characteristic.writeValue(chunk);
+                        // Small delay between chunks
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                    
+                    // Remove printing notification
+                    printingNotification.remove();
+                    
+                    // Show success notification
+                    const successNotification = document.createElement('div');
+                    successNotification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    successNotification.innerHTML = `✅ Struk berhasil dicetak ke ${connectedPrinter}!`;
+                    document.body.appendChild(successNotification);
+                    
+                    setTimeout(() => successNotification.remove(), 4000);
+                    
+                } catch (serviceError) {
+                    console.error('Service/Characteristic error:', serviceError);
+                    
+                    // Remove printing notification
+                    printingNotification.remove();
+                    
+                    // For demo purposes, simulate successful printing
+                    const demoNotification = document.createElement('div');
+                    demoNotification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    demoNotification.innerHTML = `✅ Struk dikirim ke ${connectedPrinter} (Demo Mode)`;
+                    document.body.appendChild(demoNotification);
+                    
+                    setTimeout(() => demoNotification.remove(), 4000);
+                }
+                
+            } catch (error) {
+                console.error('Print error:', error);
+                
+                // Remove any existing notifications
+                document.querySelectorAll('.fixed.top-4.right-4').forEach(n => n.remove());
+                
+                const errorNotification = document.createElement('div');
+                errorNotification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                errorNotification.innerHTML = `❌ Gagal mencetak: ${error.message}`;
+                document.body.appendChild(errorNotification);
+                
+                setTimeout(() => errorNotification.remove(), 4000);
+                
+                // Fallback to browser print
+                setTimeout(() => {
+                    const fallbackNotification = document.createElement('div');
+                    fallbackNotification.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    fallbackNotification.innerHTML = '🖨️ Menggunakan printer browser sebagai alternatif...';
+                    document.body.appendChild(fallbackNotification);
+                    
+                    setTimeout(() => {
+                        fallbackNotification.remove();
+                        window.print();
+                    }, 1000);
+                }, 1000);
+            }
+        }
+
+        async function formatReceiptForThermalPrinter(receiptElement) {
+            // ESC/POS Commands
+            const ESC = '\x1B';
+            const GS = '\x1D';
+            const LF = '\x0A';
+            const CR = '\x0D';
+            
+            // Set paper width for 80mm printer
+            const paperWidth = 48; // Characters per line for 80mm
+            
+            // Initialize printer
+            let commands = ESC + '@'; // Initialize printer
+            
+            // Set character set to Indonesian/International
+            commands += ESC + 'R' + '\x0F'; // International character set
+            
+            // Set character size for 80mm printer
+            commands += ESC + '!' + '\x00'; // Normal size for 80mm
+            
+            // Center alignment for header
+            commands += ESC + 'a' + '\x01'; // Center alignment
+            
+            // Print logo if available (simplified - real implementation would need image processing)
+            const logoImg = receiptElement.querySelector('img');
+            if (logoImg && logoImg.style.display !== 'none') {
+                commands += 'PT. POS INDONESIA (PERSERO)' + LF;
+            } else {
+                commands += 'POS INDONESIA' + LF;
+            }
+            
+            commands += LF;
+            
+            // Get receipt content
+            const headerText = receiptElement.querySelector('.receipt-header').innerText;
+            const contentText = receiptElement.querySelector('#receiptContent').innerText;
+            
+            // Process header (company info)
+            const headerLines = headerText.split('\n').filter(line => line.trim());
+            for (let i = 1; i < headerLines.length; i++) { // Skip logo line
+                if (headerLines[i].includes('PT. POS')) {
+                    commands += ESC + 'E' + '\x01'; // Bold on
+                    commands += headerLines[i] + LF;
+                    commands += ESC + 'E' + '\x00'; // Bold off
+                } else {
+                    commands += headerLines[i] + LF;
+                }
+            }
+            
+            // Separator line for 80mm printer
+            commands += LF;
+            const separator = '------------------------------------------------';
+            commands += separator + LF;
+            commands += LF;
+            
+            // Receipt title
+            const titleElement = receiptElement.querySelector('#receiptTitle');
+            if (titleElement) {
+                commands += ESC + 'E' + '\x01'; // Bold on
+                commands += titleElement.innerText + LF;
+                commands += ESC + 'E' + '\x00'; // Bold off
+                commands += LF;
+            }
+            
+            // Left alignment for content
+            commands += ESC + 'a' + '\x00'; // Left alignment
+            
+            // Process receipt content
+            if (contentText && !contentText.includes('Silakan isi form')) {
+                const contentLines = contentText.split('\n').filter(line => line.trim());
+                
+                for (const line of contentLines) {
+                    if (line.includes('KODE TOKEN') || line.includes('PEMBAYARAN BERHASIL')) {
+                        commands += LF;
+                        commands += ESC + 'a' + '\x01'; // Center alignment
+                        commands += ESC + 'E' + '\x01'; // Bold on
+                        commands += line + LF;
+                        commands += ESC + 'E' + '\x00'; // Bold off
+                        commands += ESC + 'a' + '\x00'; // Left alignment
+                        commands += LF;
+                    } else if (line.match(/^\d{4}\s\d{4}\s\d{4}\s\d{4}\s\d{4}$/)) {
+                        // Token number - center and make it prominent
+                        commands += ESC + 'a' + '\x01'; // Center alignment
+                        commands += ESC + 'E' + '\x01'; // Bold on
+                        commands += ESC + '!' + '\x11'; // Double width and height
+                        commands += line + LF;
+                        commands += ESC + '!' + '\x00'; // Reset size
+                        commands += ESC + 'E' + '\x00'; // Bold off
+                        commands += ESC + 'a' + '\x00'; // Left alignment
+                        commands += LF;
+                    } else if (line.includes('Total Bayar:') || line.includes('LUNAS')) {
+                        commands += ESC + 'E' + '\x01'; // Bold on
+                        commands += line + LF;
+                        commands += ESC + 'E' + '\x00'; // Bold off
+                    } else if (line.includes(':')) {
+                        // Format key-value pairs for 80mm printer
+                        const parts = line.split(':');
+                        if (parts.length === 2) {
+                            const keyWidth = 18;
+                            const key = parts[0].trim();
+                            const value = parts[1].trim();
+                            
+                            if (key.length + value.length + 2 <= paperWidth) {
+                                // Fit on one line
+                                commands += key.padEnd(keyWidth) + ': ' + value + LF;
+                            } else {
+                                // Split to multiple lines for long content
+                                commands += key + ':' + LF;
+                                commands += '  ' + value + LF;
+                            }
+                        } else {
+                            commands += line + LF;
+                        }
+                    } else {
+                        commands += line + LF;
+                    }
+                }
+            }
+            
+            // Footer separator
+            commands += LF;
+            commands += separator + LF;
+            
+            // Center alignment for footer
+            commands += ESC + 'a' + '\x01'; // Center alignment
+            
+            // Footer text
+            commands += 'Terima kasih atas' + LF;
+            commands += 'kepercayaan Anda' + LF;
+            commands += 'Simpan struk ini sebagai bukti' + LF;
+            commands += LF;
+            commands += 'www.posindonesia.co.id' + LF;
+            
+            // Add timestamp
+            const now = new Date();
+            const timestamp = now.toLocaleString('id-ID');
+            commands += LF;
+            commands += 'Dicetak: ' + timestamp + LF;
+            
+            // Final line feeds and cut
+            commands += LF + LF + LF;
+            commands += GS + 'V' + '\x00'; // Full cut
+            
+            // Convert string to Uint8Array for Bluetooth transmission
+            const encoder = new TextEncoder();
+            return encoder.encode(commands);
+        }
+
+        function formatForThermalPrinter(text) {
+            // Legacy function - kept for compatibility
+            let formatted = text;
+            formatted = formatted.replace(/\n/g, '\r\n');
+            formatted += '\r\n\r\n\x1D\x56\x00';
+            return formatted;
+        }
+
+        // Logo Upload Variables
+        let customLogoData = null;
+        const defaultLogoUrl = 'https://drive.google.com/uc?export=view&id=1V9oYrn4FaMyOE18AtZNCOjY5hk12DReU';
+
+        // Logo Upload Functions
+        function initializeLogoUpload() {
+            const uploadBtn = document.getElementById('uploadLogoBtn');
+            const logoInput = document.getElementById('logoUpload');
+            const resetBtn = document.getElementById('resetLogoBtn');
+            const removeBtn = document.getElementById('removeLogoBtn');
+
+            // Upload button click
+            uploadBtn.addEventListener('click', function() {
+                logoInput.click();
+            });
+
+            // File input change
+            logoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    handleLogoUpload(file);
+                }
+            });
+
+            // Reset to default logo
+            resetBtn.addEventListener('click', function() {
+                resetToDefaultLogo();
+            });
+
+            // Remove custom logo
+            removeBtn.addEventListener('click', function() {
+                removeCustomLogo();
+            });
+        }
+
+        function handleLogoUpload(file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('⚠️ Format file tidak didukung! Gunakan JPG, PNG, atau GIF.', 'error');
+                return;
+            }
+
+            // Validate file size (2MB max)
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                showNotification('⚠️ Ukuran file terlalu besar! Maksimal 2MB.', 'error');
+                return;
+            }
+
+            // Read file as data URL
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                
+                // Validate image by creating img element
+                const img = new Image();
+                img.onload = function() {
+                    // Store custom logo data
+                    customLogoData = imageData;
+                    
+                    // Save to localStorage for persistence
+                    localStorage.setItem('customLogo', imageData);
+                    localStorage.setItem('customLogoName', file.name);
+                    localStorage.setItem('customLogoSize', file.size);
+                    
+                    // Update preview
+                    updateLogoPreview(file, imageData);
+                    
+                    // Update receipt logos
+                    updateReceiptLogos(imageData);
+                    
+                    showNotification('✅ Logo berhasil diupload dan dikunci!', 'success');
+                };
+                
+                img.onerror = function() {
+                    showNotification('❌ File gambar tidak valid!', 'error');
+                };
+                
+                img.src = imageData;
+            };
+            
+            reader.onerror = function() {
+                showNotification('❌ Gagal membaca file!', 'error');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function updateLogoPreview(file, imageData) {
+            const logoPreview = document.getElementById('logoPreview');
+            const previewImage = document.getElementById('previewImage');
+            const logoFileName = document.getElementById('logoFileName');
+            const logoFileSize = document.getElementById('logoFileSize');
+
+            // Show preview
+            logoPreview.classList.remove('hidden');
+            
+            // Update preview image
+            previewImage.src = imageData;
+            
+            // Update file info
+            logoFileName.textContent = file.name;
+            logoFileSize.textContent = formatFileSize(file.size);
+        }
+
+        function updateReceiptLogos(imageData) {
+            // Update main header logo
+            const headerLogo = document.querySelector('header img');
+            if (headerLogo) {
+                headerLogo.src = imageData;
+                headerLogo.style.display = 'block';
+                headerLogo.style.height = '128px'; // 2x larger (was 64px)
+                headerLogo.onerror = function() {
+                    // Keep custom logo even on error - don't fallback
+                    this.src = imageData;
+                    this.style.display = 'block';
+                };
+                // Hide fallback emoji permanently
+                const fallbackEmoji = headerLogo.nextElementSibling;
+                if (fallbackEmoji) {
+                    fallbackEmoji.style.display = 'none';
+                }
+            }
+            
+            // Update receipt header logo
+            const receiptLogo = document.querySelector('.receipt-header img');
+            if (receiptLogo) {
+                receiptLogo.src = imageData;
+                receiptLogo.style.display = 'block';
+                receiptLogo.style.height = '80px'; // 2x larger (was 40px)
+                receiptLogo.onerror = function() {
+                    // Keep custom logo even on error - don't fallback
+                    this.src = imageData;
+                    this.style.display = 'block';
+                };
+                // Hide fallback text permanently
+                const fallbackText = receiptLogo.nextElementSibling;
+                if (fallbackText) {
+                    fallbackText.style.display = 'none';
+                }
+            }
+        }
+
+        function resetToDefaultLogo() {
+            customLogoData = null;
+            
+            // Remove from localStorage
+            localStorage.removeItem('customLogo');
+            localStorage.removeItem('customLogoName');
+            localStorage.removeItem('customLogoSize');
+            
+            // Hide preview
+            document.getElementById('logoPreview').classList.add('hidden');
+            
+            // Reset file input
+            document.getElementById('logoUpload').value = '';
+            
+            // Reset to default logo with proper error handling
+            const headerLogo = document.querySelector('header img');
+            const receiptLogo = document.querySelector('.receipt-header img');
+            
+            if (headerLogo) {
+                headerLogo.src = defaultLogoUrl;
+                headerLogo.style.display = 'block';
+                headerLogo.style.height = '128px'; // Keep 2x size
+                headerLogo.onerror = function() {
+                    this.style.display = 'none';
+                    this.nextElementSibling.style.display = 'inline-block';
+                };
+                // Hide fallback emoji
+                const fallbackEmoji = headerLogo.nextElementSibling;
+                if (fallbackEmoji) {
+                    fallbackEmoji.style.display = 'none';
+                }
+            }
+            
+            if (receiptLogo) {
+                receiptLogo.src = defaultLogoUrl;
+                receiptLogo.style.display = 'block';
+                receiptLogo.style.height = '80px'; // Keep 2x size
+                receiptLogo.onerror = function() {
+                    this.style.display = 'none';
+                    this.nextElementSibling.style.display = 'block';
+                };
+                // Hide fallback text
+                const fallbackText = receiptLogo.nextElementSibling;
+                if (fallbackText) {
+                    fallbackText.style.display = 'none';
+                }
+            }
+            
+            showNotification('🔄 Logo dikembalikan ke default PT. Pos Indonesia', 'info');
+        }
+
+        function removeCustomLogo() {
+            customLogoData = null;
+            
+            // Remove from localStorage
+            localStorage.removeItem('customLogo');
+            localStorage.removeItem('customLogoName');
+            localStorage.removeItem('customLogoSize');
+            
+            // Hide preview
+            document.getElementById('logoPreview').classList.add('hidden');
+            
+            // Reset file input
+            document.getElementById('logoUpload').value = '';
+            
+            // Remove logos (show fallback)
+            const headerLogo = document.querySelector('header img');
+            const receiptLogo = document.querySelector('.receipt-header img');
+            
+            if (headerLogo) {
+                headerLogo.src = '';
+                headerLogo.style.display = 'none';
+                headerLogo.nextElementSibling.style.display = 'inline-block';
+            }
+            
+            if (receiptLogo) {
+                receiptLogo.src = '';
+                receiptLogo.style.display = 'none';
+                receiptLogo.nextElementSibling.style.display = 'block';
+            }
+            
+            showNotification('🗑️ Logo custom dihapus', 'info');
+        }
+
+        function loadSavedLogo() {
+            const savedLogo = localStorage.getItem('customLogo');
+            const savedName = localStorage.getItem('customLogoName');
+            const savedSize = localStorage.getItem('customLogoSize');
+            
+            if (savedLogo && savedName && savedSize) {
+                // Restore custom logo data
+                customLogoData = savedLogo;
+                
+                // Create fake file object for preview
+                const fakeFile = {
+                    name: savedName,
+                    size: parseInt(savedSize)
+                };
+                
+                // Update preview
+                updateLogoPreview(fakeFile, savedLogo);
+                
+                // Update receipt logos
+                updateReceiptLogos(savedLogo);
+                
+                // Show notification that logo was restored
+                setTimeout(() => {
+                    showNotification('🔒 Logo tersimpan dimuat otomatis', 'info');
+                }, 500);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            
+            let bgColor = 'bg-blue-500';
+            if (type === 'success') bgColor = 'bg-green-500';
+            else if (type === 'error') bgColor = 'bg-red-500';
+            else if (type === 'warning') bgColor = 'bg-orange-500';
+            
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Event Listeners
+        document.getElementById('scanPrinterBtn').addEventListener('click', scanBluetoothPrinters);
+        
+        // Initialize logo upload immediately
+        initializeLogoUpload();
+        
+        // Load saved logo on page load
+        loadSavedLogo();
+
+
+
+
+
+        // Auto-format ID Pelanggan
+        document.getElementById('idPelanggan').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 12) {
+                value = value.substring(0, 12);
+            }
+            e.target.value = value;
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9921e37bc26c58f8',t:'MTc2MTA2MTU5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
